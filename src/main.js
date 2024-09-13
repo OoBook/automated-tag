@@ -126,6 +126,7 @@ async function run() {
 
     const nextTag = nextTagOutput.trim();
     core.debug(nextTag);
+    core.setOutput("tag", nextTag);
     // const octokit = new github.GitHub(github.context.repo.token);
     // const octokit = new github.getOctokit(token);
     // console.log(octokit.rest);

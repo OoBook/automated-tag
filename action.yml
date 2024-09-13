@@ -24,6 +24,9 @@ inputs:
     description: run mode of the action
     required: false
     default: false
+outputs:
+  tag: # id of the output
+    description: 'The new auto-generated tag'
 # runs:
 #   using: composite
 #   steps:
