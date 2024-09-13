@@ -10,7 +10,7 @@
   },
   "scripts": {
     "local": "npx @github/local-action run ./ src/index.js .env",
-    "build": "ncc build src/main.js -o dist --source-map --license licenses.txt -m",
+    "build": "ncc build src/index.js -o dist --source-map --license licenses.txt -m",
     "bundle": "npm run format:write && npm run package",
     "ci-test": "npx jest",
     "coverage": "npx make-coverage-badge --output-path ./badges/coverage.svg",
