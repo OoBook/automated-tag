@@ -126,8 +126,23 @@ async function run() {
 
     const nextTag = nextTagOutput.trim();
     core.debug(nextTag);
-    console.log(nextTag)
+    console.log(nextTag);
     core.setOutput("tag", nextTag);
+    // Create and push the tag
+
+    const octokit = new github.getOctokit(token);
+    await octokit.rest.repos.createTag({
+      tag: nextTag,
+      owner,
+      repo,
+      message: "Auto-generated tag by workflow",
+    });
+    await octokit.rest.repos.pushTag({
+      tag: nextTag,
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      sha: github.context.sha,
+    });
     // const octokit = new github.GitHub(github.context.repo.token);
     // const octokit = new github.getOctokit(token);
     // console.log(octokit.rest);
@@ -141,20 +156,6 @@ async function run() {
     //   // Set the next tag as ;an output
     //   core.setOutput("next_tag", `v${nextTag}`);
 
-    //   // // Create and push the tag
-    //   // const octokit = new github.GitHub(github.context.repo.token);
-    //   // await octokit.rest.repos.createTag({
-    //   //   tag: nextTag,
-    //   //   owner: github.context.repo.owner,
-    //   //   repo: github.context.repo.repo,
-    //   //   message: "Auto-generated tag by workflow",
-    //   // });
-    //   // await octokit.rest.repos.pushTag({
-    //   //   tag: nextTag,
-    //   //   owner: github.context.repo.owner,
-    //   //   repo: github.context.repo.repo,
-    //   //   sha: github.context.sha,
-    //   // });
     // }
   } catch (error) {
     core.setFailed(error.message);
