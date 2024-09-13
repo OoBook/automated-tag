@@ -35,4 +35,4 @@ inputs:
 #         GITHUB_TOKEN: ${{ inputs.gh-token }}
 runs:
   using: node20
-  main: index.js
+  main: dist/index.js
