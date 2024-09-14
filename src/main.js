@@ -87,11 +87,11 @@ async function run() {
     const token = core.getInput("gh-token", { required: true });
     core.info("curl binary checking");
 
-    const { stdout, stderr } = await exec.exec(`which curl`);
+    // const { stdout, stderr } = await exec.exec(`which curl`);
 
-    core.info("curl binary path", stdout);
+    // core.info("curl binary path", stdout);
 
-    core.info("Autotag script installing");
+    // core.info("Autotag script installing");
     // await exec.exec(`set -e`);
     // const { stdout, stderr } = await exec.exec(
     //   `curl -sL https://git.io/autotag-install | sh -s -- -b /usr/local/bin`,
