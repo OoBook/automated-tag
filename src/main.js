@@ -135,7 +135,8 @@ async function run() {
     // newTag = newTag.trim();
 
     let newTag = "";
-    await exec.exec("./src/create-tag.sh", [], {
+
+    await exec.exec(`sh ${github.action_path}/src/create-tag.sh`, [], {
       listeners: {
         stdout: (data) => {
           newTag += data.toString();
