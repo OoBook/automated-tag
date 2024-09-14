@@ -96,13 +96,23 @@ async function run() {
     // const { stdout, stderr } = await exec.exec(
     //   `curl -sL https://git.io/autotag-install | sh -s -- -b /usr/local/bin`,
     // );
-    const { stdout: installOut, stderr: installErr } = await exec.exec(
-      `/usr/bin/curl -sL https://git.io/autotag-install`,
-    );
+    // const { stdout: installOut, stderr: installErr } = await exec.exec(
+    //   `curl -sL https://git.io/autotag-install |sh -s -- -b /usr/bin`,
+    // );
+    // if (stderr) {
+    //   throw new Error(`Error installing Autotag: ${stderr}`);
+    // }
 
-    if (stderr) {
-      throw new Error(`Error installing Autotag: ${stderr}`);
-    }
+    await exec.exec("curl -sL https://git.io/autotag-install|sh --", [], {
+      listeners: {
+        stdout: (data) => {
+          // newTag += data.toString();
+        },
+        stderr: (data) => {
+          core.error(data);
+        },
+      },
+    });
     core.debug("autotag installed");
 
     // Fetch all tags and history
@@ -123,18 +133,41 @@ async function run() {
       await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
     }
 
-    const { stdout: nextTagOutput, stderr: nextTagStderr } = await exec.exec(
-      "/usr/local/bin/autotag",
-    );
+    let newTag = "";
+    await exec.exec("autotag", [], {
+      listeners: {
+        stdout: (data) => {
+          core.info("autotag", data);
+        },
+        stderr: (data) => {
+          core.debug("autotag binary error", data);
+        },
+      },
+    });
+    await exec.exec("./bin/autotag", [], {
+      listeners: {
+        stdout: (data) => {
+          core.info("./bin/autotag", data);
+        },
+        stderr: (data) => {
+          core.debug("./bin/autotag binary error", data);
+        },
+      },
+    });
+    await exec.exec("/usr/bin/autotag", [], {
+      listeners: {
+        stdout: (data) => {
+          core.info("/usr/bin/autotag", data);
+        },
+        stderr: (data) => {
+          core.debug("/usr/bin/autotag binary error", data);
+        },
+      },
+    });
+    newTag = newTag.trim();
 
-    if (nextTagStderr) {
-      throw new Error(`Error running Autotag: ${nextTagStderr}`);
-    }
-
-    const nextTag = nextTagOutput.trim();
-    core.debug(nextTag);
-    core.info(`Next tag is ${nextTag}`);
-    core.setOutput("tag", nextTag);
+    core.info(`Next tag is ${newTag}`);
+    core.setOutput("tag", newTag);
     // Create and push the tag
 
     // const octokit = new github.getOctokit(token);
