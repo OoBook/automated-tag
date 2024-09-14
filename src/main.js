@@ -85,71 +85,66 @@ async function run() {
     const repo = github.context.repo.repo;
     const isTest = core.getInput("test", { required: false });
     const token = core.getInput("gh-token", { required: true });
-    core.info("curl binary checking");
 
-    // const { stdout, stderr } = await exec.exec(`which curl`);
-
-    // core.info("curl binary path", stdout);
-
-    // core.info("Autotag script installing");
-    // await exec.exec(`set -e`);
-    // const { stdout, stderr } = await exec.exec(
-    //   `curl -sL https://git.io/autotag-install | sh -s -- -b /usr/local/bin`,
+    core.info("Autotag script installing");
+    // await exec.exec(
+    //   "curl -sL https://git.io/autotag-install | sh -s -- -b /usr/bin",
+    //   [],
+    //   {
+    //     listeners: {
+    //       stdout: (data) => {
+    //         // newTag += data.toString();
+    //       },
+    //       stderr: (data) => {
+    //         core.error(data);
+    //       },
+    //     },
+    //   },
     // );
-    // const { stdout: installOut, stderr: installErr } = await exec.exec(
-    //   `curl -sL https://git.io/autotag-install |sh -s -- -b /usr/bin`,
-    // );
-    // if (stderr) {
-    //   throw new Error(`Error installing Autotag: ${stderr}`);
-    // }
-
-    await exec.exec(
-      "curl -sL https://git.io/autotag-install | sh -s -- -b /usr/bin",
-      [],
-      {
-        listeners: {
-          stdout: (data) => {
-            // newTag += data.toString();
-          },
-          stderr: (data) => {
-            core.error(data);
-          },
-        },
-      },
-    );
-    core.debug("autotag installed");
 
     // Fetch all tags and history
-    await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"]);
+    // await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"]);
 
-    // Check if we're on the main branch, if not, create it
-    let currentBranch = "";
-    await exec.exec("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-      listeners: {
-        stdout: (data) => {
-          currentBranch += data.toString();
-        },
-      },
-    });
-    currentBranch = currentBranch.trim();
-    core.debug(currentBranch);
-    if (currentBranch !== "main") {
-      await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
-    }
+    // // Check if we're on the main branch, if not, create it
+    // let currentBranch = "";
+    // await exec.exec("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+    //   listeners: {
+    //     stdout: (data) => {
+    //       currentBranch += data.toString();
+    //     },
+    //   },
+    // });
+    // currentBranch = currentBranch.trim();
+    // core.debug(currentBranch);
+    // if (currentBranch !== "main") {
+    //   await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
+    // }
+
+    // let newTag = "";
+    // await exec.exec("autotag", [], {
+    //   listeners: {
+    //     stdout: (data) => {
+    //       newTag = data;
+    //       core.info("/usr/bin/autotag", data);
+    //     },
+    //     stderr: (data) => {
+    //       core.debug("/usr/bin/autotag binary error", data);
+    //     },
+    //   },
+    // });
+    // newTag = newTag.trim();
 
     let newTag = "";
-    await exec.exec("autotag", [], {
+    await exec.exec("./src/create-tag.sh", [], {
       listeners: {
         stdout: (data) => {
-          newTag = data;
-          core.info("/usr/bin/autotag", data);
+          newTag += data.toString();
         },
         stderr: (data) => {
-          core.debug("/usr/bin/autotag binary error", data);
+          core.error(data);
         },
       },
     });
-    newTag = newTag.trim();
 
     core.info(`Next tag is ${newTag}`);
     core.setOutput("tag", newTag);
