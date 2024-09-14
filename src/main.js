@@ -135,7 +135,7 @@ async function run() {
     // newTag = newTag.trim();
 
     let newTag = "";
-
+    console.log(github.context);
     await exec.exec(`sh ${github.context.action_path}/src/create-tag.sh`, [], {
       listeners: {
         stdout: (data) => {
