@@ -103,16 +103,20 @@ async function run() {
     //   throw new Error(`Error installing Autotag: ${stderr}`);
     // }
 
-    await exec.exec("curl -sL https://git.io/autotag-install|sh --", [], {
-      listeners: {
-        stdout: (data) => {
-          // newTag += data.toString();
-        },
-        stderr: (data) => {
-          core.error(data);
+    await exec.exec(
+      "curl -sL https://git.io/autotag-install | sh -s -- -b /usr/bin",
+      [],
+      {
+        listeners: {
+          stdout: (data) => {
+            // newTag += data.toString();
+          },
+          stderr: (data) => {
+            core.error(data);
+          },
         },
       },
-    });
+    );
     core.debug("autotag installed");
 
     // Fetch all tags and history
@@ -134,29 +138,10 @@ async function run() {
     }
 
     let newTag = "";
-    await exec.exec("autotag", [], {
-      listeners: {
-        stdout: (data) => {
-          core.info("autotag", data);
-        },
-        stderr: (data) => {
-          core.debug("autotag binary error", data);
-        },
-      },
-    });
-    await exec.exec("./bin/autotag", [], {
-      listeners: {
-        stdout: (data) => {
-          core.info("./bin/autotag", data);
-        },
-        stderr: (data) => {
-          core.debug("./bin/autotag binary error", data);
-        },
-      },
-    });
     await exec.exec("/usr/bin/autotag", [], {
       listeners: {
         stdout: (data) => {
+          newTag = data;
           core.info("/usr/bin/autotag", data);
         },
         stderr: (data) => {
