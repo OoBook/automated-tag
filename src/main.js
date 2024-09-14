@@ -85,13 +85,19 @@ async function run() {
     const repo = github.context.repo.repo;
     const isTest = core.getInput("test", { required: false });
     const token = core.getInput("gh-token", { required: true });
+    core.info("curl binary checking");
 
+    const { stdout, stderr } = await exec.exec(`which curl`);
+
+    core.info("curl binary path", stdout);
+
+    core.info("Autotag script installing");
     // await exec.exec(`set -e`);
     // const { stdout, stderr } = await exec.exec(
     //   `curl -sL https://git.io/autotag-install | sh -s -- -b /usr/local/bin`,
     // );
-    const { stdout, stderr } = await exec.exec(
-      `curl -sL https://git.io/autotag-install | sh --`,
+    const { stdout: installOut, stderr: installErr } = await exec.exec(
+      `/usr/bin/curl -sL https://git.io/autotag-install`,
     );
 
     if (stderr) {
@@ -126,23 +132,23 @@ async function run() {
 
     const nextTag = nextTagOutput.trim();
     core.debug(nextTag);
-    console.log(nextTag);
+    core.info(`Next tag is ${nextTag}`);
     core.setOutput("tag", nextTag);
     // Create and push the tag
 
-    const octokit = new github.getOctokit(token);
-    await octokit.rest.repos.createTag({
-      tag: nextTag,
-      owner,
-      repo,
-      message: "Auto-generated tag by workflow",
-    });
-    await octokit.rest.repos.pushTag({
-      tag: nextTag,
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      sha: github.context.sha,
-    });
+    // const octokit = new github.getOctokit(token);
+    // await octokit.rest.repos.createTag({
+    //   tag: nextTag,
+    //   owner,
+    //   repo,
+    //   message: "Auto-generated tag by workflow",
+    // });
+    // await octokit.rest.repos.pushTag({
+    //   tag: nextTag,
+    //   owner: github.context.repo.owner,
+    //   repo: github.context.repo.repo,
+    //   sha: github.context.sha,
+    // });
     // const octokit = new github.GitHub(github.context.repo.token);
     // const octokit = new github.getOctokit(token);
     // console.log(octokit.rest);
