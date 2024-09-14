@@ -103,7 +103,7 @@ async function run() {
     if (stderr) {
       throw new Error(`Error installing Autotag: ${stderr}`);
     }
-    core.debug("autotag installed", stdout);
+    core.debug("autotag installed");
 
     // Fetch all tags and history
     await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"]);
@@ -123,8 +123,9 @@ async function run() {
       await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
     }
 
-    const { stdout: nextTagOutput, stderr: nextTagStderr } =
-      await exec.exec("autotag");
+    const { stdout: nextTagOutput, stderr: nextTagStderr } = await exec.exec(
+      "/usr/local/bin/autotag",
+    );
 
     if (nextTagStderr) {
       throw new Error(`Error running Autotag: ${nextTagStderr}`);
