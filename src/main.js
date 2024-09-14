@@ -138,7 +138,7 @@ async function run() {
     }
 
     let newTag = "";
-    await exec.exec("/usr/bin/autotag", [], {
+    await exec.exec("autotag", [], {
       listeners: {
         stdout: (data) => {
           newTag = data;
