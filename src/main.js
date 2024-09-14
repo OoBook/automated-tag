@@ -124,7 +124,7 @@ async function run() {
     }
 
     const { stdout: nextTagOutput, stderr: nextTagStderr } =
-      await exec.exec("./bin/autotag");
+      await exec.exec("autotag");
 
     if (nextTagStderr) {
       throw new Error(`Error running Autotag: ${nextTagStderr}`);
