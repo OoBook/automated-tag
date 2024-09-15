@@ -84,27 +84,104 @@ async function run() {
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
     const isTest = core.getInput("test", { required: false });
+    const pr_number = core.getInput("pr-number", { required: true });
     const token = core.getInput("gh-token", { required: true });
+    const octokit = github.getOctokit(token);
 
-    core.info("Autotag script installing");
-    // await exec.exec(
-    //   "curl -sL https://git.io/autotag-install | sh -s -- -b /usr/bin",
-    //   [],
-    //   {
-    //     listeners: {
-    //       stdout: (data) => {
-    //         // newTag += data.toString();
-    //       },
-    //       stderr: (data) => {
-    //         core.error(data);
-    //       },
-    //     },
-    //   },
-    // );
+    // Get the event payload
+    const { context } = github;
+    const { payload } = context;
+
+    let commits = [];
+
+    if (context.eventName === "push") {
+      // For push events, commits are directly available in the payload
+      commits = payload.commits;
+    } else if (context.eventName === "pull_request") {
+      // For pull request events, we need to fetch the commits
+      const { data: pullRequestCommits } = await octokit.rest.pulls.listCommits(
+        {
+          ...context.repo,
+          pull_number: pr_number ?? payload.pull_request.number,
+        },
+      );
+      commits = pullRequestCommits;
+    } else {
+      core.setFailed(`Unsupported event: ${context.eventName}`);
+      return;
+    }
+
+    // console.log("Commits:", commits);
+
+    const major_pattern = /BREAKING CHANGE:/;
+    const minor_pattern = /^feat(\(\w+\))?:/;
+
+    // const string = "feat: add variations";
+
+    let isMajor = false;
+    let isMinor = false;
+
+    for (const commit of commits) {
+      if (commit.commit.message.match(major_pattern)) {
+        isMajor = true;
+        return;
+      } else if (commit.commit.message.match(minor_pattern)) {
+        isMinor = true;
+      }
+      // console.log(
+      //   commit.sha,
+      //   commit.commit.message,
+      //   commit.author.type, // User
+      //   commit.author.login, // OoBook
+      //   commit.author.html_url, //
+      // );
+    }
+    // Fetch all tags
+    const { data: tags } = await octokit.rest.repos.listTags({
+      owner,
+      repo,
+      per_page: 1, // Adjust as needed
+    });
+
+    const last_tag = tags[0].name;
+
+    const tag_pattern = /^(v)([0-9]+\.[0-9]+\.[0-9]+)(-[\w]+)?$/;
+    let matches = null;
+
+    let newTag = "";
+    if ((matches = last_tag.match(tag_pattern))) {
+      const versions = matches[2].split(".").map((v) => parseInt(v));
+
+      if (isMajor) versions[0] += 1;
+      else if (isMinor) versions[1] += 1;
+      else versions[2] += 1;
+
+      newTag = `v${versions.join(".")}`;
+    }
+
+    console.log(context);
+    console.log(github);
+    console.log(payload);
+    // await octokit.rest.git.createTag({
+    //   tag: newTag,
+    //   owner,
+    //   repo,
+    //   message: "Auto-generated tag by workflow",
+    //   type: "commit",
+    // });
+    core.setOutput("tag", newTag);
 
     // Fetch all tags and history
-    // await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"]);
-
+    // await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"], {
+    //   listeners: {
+    //     stdout: (data) => {
+    //       console.log("fetch out", data.toString());
+    //     },
+    //     stderr: (data) => {
+    //       console.log("fetch error", data.toString());
+    //     },
+    //   },
+    // });
     // // Check if we're on the main branch, if not, create it
     // let currentBranch = "";
     // await exec.exec("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
@@ -120,38 +197,6 @@ async function run() {
     //   await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
     // }
 
-    // let newTag = "";
-    // await exec.exec("autotag", [], {
-    //   listeners: {
-    //     stdout: (data) => {
-    //       newTag = data;
-    //       core.info("/usr/bin/autotag", data);
-    //     },
-    //     stderr: (data) => {
-    //       core.debug("/usr/bin/autotag binary error", data);
-    //     },
-    //   },
-    // });
-    // newTag = newTag.trim();
-
-    let newTag = "";
-    console.log(github.context);
-    await exec.exec(`sh ${github.context.action_path}/src/create-tag.sh`, [], {
-      listeners: {
-        stdout: (data) => {
-          newTag += data.toString();
-        },
-        stderr: (data) => {
-          core.error(data);
-        },
-      },
-    });
-
-    core.info(`Next tag is ${newTag}`);
-    core.setOutput("tag", newTag);
-    // Create and push the tag
-
-    // const octokit = new github.getOctokit(token);
     // await octokit.rest.repos.createTag({
     //   tag: nextTag,
     //   owner,
@@ -162,22 +207,8 @@ async function run() {
     //   tag: nextTag,
     //   owner: github.context.repo.owner,
     //   repo: github.context.repo.repo,
-    //   sha: github.context.sha,
+    //   sha: github.contxt.sha,
     // });
-    // const octokit = new github.GitHub(github.context.repo.token);
-    // const octokit = new github.getOctokit(token);
-    // console.log(octokit.rest);
-
-    // const installed = await installAutoTag();
-
-    // if (installed) {
-    //   const nextTag = getNewTag();
-
-    //   core.debug(nextTag);
-    //   // Set the next tag as ;an output
-    //   core.setOutput("next_tag", `v${nextTag}`);
-
-    // }
   } catch (error) {
     core.setFailed(error.message);
   }
