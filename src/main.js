@@ -84,7 +84,7 @@ async function run() {
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
     const isTest = core.getInput("test", { required: false });
-    const pr_number = core.getInput("pr-number", { required: true });
+    // const pr_number = core.getInput("pr-number", { required: false });
     const token = core.getInput("gh-token", { required: true });
     const octokit = github.getOctokit(token);
 
