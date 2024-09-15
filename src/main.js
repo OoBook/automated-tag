@@ -128,10 +128,12 @@ async function run() {
     let isMinor = false;
 
     for (const commit of commits) {
-      if (commit.commit.message.match(major_pattern)) {
+      const message =
+        context.eventName === "push" ? commit.message : commit.commit.message;
+      if (message.match(major_pattern)) {
         isMajor = true;
         return;
-      } else if (commit.commit.message.match(minor_pattern)) {
+      } else if (message.match(minor_pattern)) {
         isMinor = true;
       }
       // console.log(
