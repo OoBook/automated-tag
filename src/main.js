@@ -94,7 +94,11 @@ async function run() {
 
     let commits = [];
 
-    console.log(context);
+    console.log(payload.commits);
+
+    if (context.eventName !== "push" && !isTest) {
+      core.setFailed(`Unsupported event: ${context.eventName}`);
+    }
 
     if (context.eventName === "push") {
       // For push events, commits are directly available in the payload
