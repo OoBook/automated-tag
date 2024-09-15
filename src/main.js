@@ -180,7 +180,7 @@ async function run() {
       },
     });
 
-    console.log(`Created tag: ${tagResponse}`);
+    console.log(`Created tag`, tagResponse);
 
     // Create a reference to the tag
     const refResponse = await octokit.rest.git.createRef({
@@ -190,7 +190,7 @@ async function run() {
       sha: tagResponse.data.sha,
     });
 
-    console.log(`Created reference: ${refResponse}`);
+    console.log(`Created reference: `, refResponse);
 
     core.setOutput("tag", tag);
 
