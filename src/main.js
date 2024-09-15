@@ -81,20 +81,20 @@ async function test() {
  */
 async function run() {
   try {
-    const owner = github.context.repo.owner;
-    const repo = github.context.repo.repo;
-    const isTest = core.getInput("test", { required: false });
-    // const pr_number = core.getInput("pr-number", { required: false });
-    const token = core.getInput("gh-token", { required: true });
-    const octokit = github.getOctokit(token);
-
     // Get the event payload
     const { context } = github;
     const { payload } = context;
 
-    let commits = [];
+    const owner = context.repo.owner;
+    const repo = context.repo.repo;
+    const isTest = core.getInput("test", { required: false });
+    // const pr_number = core.getInput("pr-number", { required: false });
+    const token = core.getInput("gh-token", { required: true });
+    const commitSha = core.getInput("commit-sha") || context.sha;
 
-    console.log(payload.commits);
+    const octokit = github.getOctokit(token);
+
+    let commits = [];
 
     if (context.eventName !== "push" && !isTest) {
       core.setFailed(`Unsupported event: ${context.eventName}`);
@@ -168,15 +168,23 @@ async function run() {
     }
 
     console.log(context);
-    console.log(github);
-    console.log(payload);
-    // await octokit.rest.git.createTag({
-    //   tag: newTag,
-    //   owner,
-    //   repo,
-    //   message: "Auto-generated tag by workflow",
-    //   type: "commit",
-    // });
+    console.log(newTag);
+    console.log(context.sha);
+
+    console.log(commitSha, github.context.actor);
+
+    await octokit.rest.git.createTag({
+      owner,
+      repo,
+      tag: newTag,
+      message: "Auto-generated tag by workflow",
+      type: "commit",
+      object: commitSha,
+      tagger: {
+        name: github.context.actor,
+        email: `${github.context.actor}@users.noreply.github.com`,
+      },
+    });
     core.setOutput("tag", newTag);
 
     // Fetch all tags and history
