@@ -156,7 +156,7 @@ async function run() {
     const tag_pattern = /^(v)([0-9]+\.[0-9]+\.[0-9]+)(-[\w]+)?$/;
     let matches = null;
 
-    let newTag = "";
+    let tag = "";
     if ((matches = last_tag.match(tag_pattern))) {
       const versions = matches[2].split(".").map((v) => parseInt(v));
 
@@ -164,13 +164,13 @@ async function run() {
       else if (isMinor) versions[1] += 1;
       else versions[2] += 1;
 
-      newTag = `v${versions.join(".")}`;
+      tag = `v${versions.join(".")}`;
     }
 
-    const responseTag = await octokit.rest.git.createTag({
+    const tagResponse = await octokit.rest.git.createTag({
       owner,
       repo,
-      tag: newTag,
+      tag,
       message: "Auto-generated tag by workflow",
       type: "commit",
       object: commitSha,
@@ -180,9 +180,21 @@ async function run() {
       },
     });
 
-    console.log(responseTag);
-    console.log(newTag);
-    core.setOutput("tag", newTag);
+    console.log(`Created tag: ${tagResponse}`);
+
+    // Create a reference to the tag
+    const refResponse = await octokit.rest.git.createRef({
+      owner,
+      repo,
+      ref: `refs/tags/${tag}`,
+      sha: tagResponse.data.sha,
+    });
+
+    console.log(`Created reference: ${refResponse}`);
+
+    core.setOutput("tag", tag);
+
+    core.setOutput("ref", refResponse.data.ref);
 
     // Fetch all tags and history
     // await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"], {
