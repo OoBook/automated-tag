@@ -94,6 +94,8 @@ async function run() {
 
     let commits = [];
 
+    console.log(context);
+
     if (context.eventName === "push") {
       // For push events, commits are directly available in the payload
       commits = payload.commits;
