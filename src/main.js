@@ -167,13 +167,7 @@ async function run() {
       newTag = `v${versions.join(".")}`;
     }
 
-    console.log(context);
-    console.log(newTag);
-    console.log(context.sha);
-
-    console.log(commitSha, github.context.actor);
-
-    await octokit.rest.git.createTag({
+    const responseTag = await octokit.rest.git.createTag({
       owner,
       repo,
       tag: newTag,
@@ -185,6 +179,9 @@ async function run() {
         email: `${github.context.actor}@users.noreply.github.com`,
       },
     });
+
+    console.log(responseTag);
+    console.log(newTag);
     core.setOutput("tag", newTag);
 
     // Fetch all tags and history
