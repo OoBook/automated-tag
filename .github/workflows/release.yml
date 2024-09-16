@@ -21,7 +21,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: true
+          # prerelease: true
       - name: Handle Releasing Output
         run: |
           echo "Released Tag {{ steps.releas.outputs.automatic_releases_tag }}"
