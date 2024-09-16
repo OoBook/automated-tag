@@ -2,7 +2,7 @@ name: Main
 on:
   push:
     branches:
-      - main
+      - mainx
     # branches-ignore:
     #   - 'mona/octocat'
     #   - 'releases/**-alpha'
