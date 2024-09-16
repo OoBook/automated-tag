@@ -61,6 +61,7 @@ jobs:
         id: tag-generation
         with:
           gh-token: ${{ github.token }}
+      # Instance for using the outputs of the action
       - name: Get Tag Outputs 
         if: ${{ success() && steps.tag-generation.outputs.tag != '' }}
         run: |
