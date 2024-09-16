@@ -28,6 +28,12 @@ jobs:
         id: tag-generation
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Trigger Release Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: new-tag-created
+          client-payload: '{"tag": "${{ steps.tag-generation.outputs.tag }}"}'
       # - name: Run Workflow (if not BREAKING CHANGE)
       #   id: release
       #   uses: "marvinpinto/action-automatic-releases@latest"
