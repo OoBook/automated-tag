@@ -169,7 +169,17 @@ async function run() {
       tag = `v${versions.join(".")}`;
     }
 
-    core.info(`Older tags: `, tags);
+    core.info(`Older tags:`, tags);
+    console.log(tags);
+
+    console.log(`Automated Tag: `, tag);
+    core.info(`Automated Tag: `, tag);
+
+    if (isTest) {
+      core.setOutput("tag", tag);
+
+      return;
+    }
 
     const tagResponse = await octokit.rest.git.createTag({
       owner,
@@ -195,10 +205,6 @@ async function run() {
     });
 
     console.log(`Created reference: `, refResponse);
-
-    core.setOutput("tag", tag);
-
-    core.setOutput("ref", refResponse.data.ref);
 
     core.info(`Generated Tag's Ref is: ${refResponse.data.ref}`);
 
