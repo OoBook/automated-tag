@@ -92,8 +92,8 @@ async function run() {
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
 
-    core.debug("trial");
-    core.debug(`${token.substring(0, 3)})`);
+    core.info("trial");
+    core.info(`${token.substring(0, 3)})`);
 
     const octokit = github.getOctokit(token);
 
