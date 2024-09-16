@@ -1,9 +1,9 @@
-name: Test
+name: Local Test
 
 on:
   pull_request:
     branches:
-      - test
+      - _test
       
 permissions:
   contents: write
@@ -15,11 +15,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
         id: tag-generation
-        if: ${{ success() && env.INPUT_GH_TOKEN != '' }}
+        # if: success() && env.INPUT_GH_TOKEN != ''
         with:
           test: true
-          gh_token: ${{ env.INPUT_GH_TOKEN }}
+          # gh_token: ${{ env.INPUT_GH_TOKEN }}
+          gh_token: ''
           pr_number: 1
+          commit_sha: ''
       # - name: Mock Tag
       #   id: tag-generation
       #   run: |

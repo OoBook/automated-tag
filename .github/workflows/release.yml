@@ -1,0 +1,27 @@
+name: "Release"
+
+# Run on every commit tag which begins with 'v' except BREAKING Change
+on:
+  push:
+    tags:
+      - 'v*'
+    # paths-ignore:
+    #   - '**.md'
+    #   - '**.yml'
+
+# Automatically create a Github Release, with release details specified (the relevant commits)
+jobs:
+  release:
+    name: "Release the new version from the related tag"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Run Workflow (if not BREAKING CHANGE)
+        id: release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: true
+      - name: Handle Releasing Output
+        run: |
+          echo "Released Tag {{ steps.releas.outputs.automatic_releases_tag }}"
+          echo "Upload Url {{ steps.releas.outputs.upload_url }}"
