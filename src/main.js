@@ -88,9 +88,9 @@ async function run() {
     const owner = context.repo.owner;
     const repo = context.repo.repo;
     const isTest = core.getInput("test", { required: false });
-    // const pr_number = core.getInput("pr-number", { required: false });
-    const token = core.getInput("gh-token", { required: true });
-    const commitSha = core.getInput("commit-sha") || context.sha;
+    const pr_number = core.getInput("pr_number");
+    const token = core.getInput("gh_token", { required: true });
+    const commitSha = core.getInput("commit_sha") || context.sha;
 
     const octokit = github.getOctokit(token);
 
@@ -117,8 +117,6 @@ async function run() {
       return;
     }
 
-    // console.log("Commits:", commits);
-
     const major_pattern = /BREAKING CHANGE:/;
     const minor_pattern = /^feat(\(\w+\))?:/;
 
@@ -144,6 +142,9 @@ async function run() {
       //   commit.author.html_url, //
       // );
     }
+
+    core.info(`Owner: ${owner}`);
+
     // Fetch all tags
     const { data: tags } = await octokit.rest.repos.listTags({
       owner,
@@ -167,6 +168,18 @@ async function run() {
       tag = `v${versions.join(".")}`;
     }
 
+    let changeType = "patch";
+    if (isMajor) changeType = "major";
+    else if (isMinor) changeType = "minor";
+
+    core.info(`CHANGE TYPE: ${changeType}`);
+    core.info(`Generated Tag is: ${tag}`);
+
+    if (isTest) {
+      core.setOutput("tag", tag);
+      return;
+    }
+
     const tagResponse = await octokit.rest.git.createTag({
       owner,
       repo,
@@ -180,8 +193,6 @@ async function run() {
       },
     });
 
-    console.log(`Created tag: ${tagResponse}`);
-
     // Create a reference to the tag
     const refResponse = await octokit.rest.git.createRef({
       owner,
@@ -190,50 +201,10 @@ async function run() {
       sha: tagResponse.data.sha,
     });
 
-    console.log(`Created reference: ${refResponse}`);
+    core.info(`Generated Tag's Ref is: ${refResponse.data.ref}`);
 
     core.setOutput("tag", tag);
-
     core.setOutput("ref", refResponse.data.ref);
-
-    // Fetch all tags and history
-    // await exec.exec("git", ["fetch", "--tags", "--unshallow", "--prune"], {
-    //   listeners: {
-    //     stdout: (data) => {
-    //       console.log("fetch out", data.toString());
-    //     },
-    //     stderr: (data) => {
-    //       console.log("fetch error", data.toString());
-    //     },
-    //   },
-    // });
-    // // Check if we're on the main branch, if not, create it
-    // let currentBranch = "";
-    // await exec.exec("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-    //   listeners: {
-    //     stdout: (data) => {
-    //       currentBranch += data.toString();
-    //     },
-    //   },
-    // });
-    // currentBranch = currentBranch.trim();
-    // core.debug(currentBranch);
-    // if (currentBranch !== "main") {
-    //   await exec.exec("git", ["branch", "--track", "main", "origin/main"]);
-    // }
-
-    // await octokit.rest.repos.createTag({
-    //   tag: nextTag,
-    //   owner,
-    //   repo,
-    //   message: "Auto-generated tag by workflow",
-    // });
-    // await octokit.rest.repos.pushTag({
-    //   tag: nextTag,
-    //   owner: github.context.repo.owner,
-    //   repo: github.context.repo.repo,
-    //   sha: github.contxt.sha,
-    // });
   } catch (error) {
     core.setFailed(error.message);
   }
