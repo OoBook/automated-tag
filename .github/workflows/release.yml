@@ -10,6 +10,9 @@ on:
     #   - '**.md'
     #   - '**.yml'
 
+permissions:
+  contents: write
+
 # Automatically create a Github Release, with release details specified (the relevant commits)
 jobs:
   release:
