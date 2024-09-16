@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - 'v*'
+  create:
     # paths-ignore:
     #   - '**.md'
     #   - '**.yml'
