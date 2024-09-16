@@ -144,6 +144,7 @@ async function run() {
     }
 
     core.info(`Owner: ${owner}`);
+    core.info(`Repo: ${repo}`);
 
     // Fetch all tags
     const { data: tags } = await octokit.rest.repos.listTags({
