@@ -87,7 +87,7 @@ async function run() {
 
     const owner = context.repo.owner;
     const repo = context.repo.repo;
-    const isTest = core.getInput("test", { required: false });
+    const isTest = core.getInput("test", { required: false }) === "true";
     const pr_number = core.getInput("pr_number");
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
