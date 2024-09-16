@@ -22,4 +22,3 @@ jobs:
         # if: ${{ success() && secrets.GITHUB_TOKEN != '' }}
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          test: false
