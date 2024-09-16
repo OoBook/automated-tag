@@ -21,14 +21,14 @@ jobs:
         id: tag-generation
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run Workflow (if not BREAKING CHANGE)
-        id: release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: true
-          automatic_release_tag: "${{ steps.tag-generation.outputs.tag }}"
-      - name: Handle Releasing Output
-        run: |
-          echo "Released Tag {{ steps.release.outputs.automatic_releases_tag }}"
-          echo "Upload Url {{ steps.release.outputs.upload_url }}"
+      # - name: Run Workflow (if not BREAKING CHANGE)
+      #   id: release
+      #   uses: "marvinpinto/action-automatic-releases@latest"
+      #   with:
+      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      #     prerelease: true
+      #     automatic_release_tag: "${{ steps.tag-generation.outputs.tag }}"
+      # - name: Handle Releasing Output
+      #   run: |
+      #     echo "Released Tag {{ steps.release.outputs.automatic_releases_tag }}"
+      #     echo "Upload Url {{ steps.release.outputs.upload_url }}"
