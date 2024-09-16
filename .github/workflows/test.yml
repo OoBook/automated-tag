@@ -1,0 +1,39 @@
+name: TEST
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        id: tag-generation
+        if: ${{ success() && env.INPUT_GH_TOKEN != '' }}
+        with:
+          test: true
+          gh_token: ${{ env.INPUT_GH_TOKEN }}
+          pr_number: 1
+      # - name: Mock Tag
+      #   id: tag-generation
+      #   run: |
+      #     echo "tag=v1.0.1" >> $GITHUB_OUTPUT
+      # - name: Mock Tag
+      #   id: tag-generation
+      #   run: |
+      #     {
+      #       echo 'tag<<EOF'
+      #       yarn test 2>&1
+      #       echo EOF
+      #     } >> "$GITHUB_ENV"
+      - name: Get Tag Outputs 
+        if: ${{ success() && steps.tag-generation.outputs.tag != '' }}
+        run: |
+          echo "Generated Tag is: ${{ steps.tag-generation.outputs.tag }}"
+          echo "tag=${{ steps.tag-generation.outputs.tag }}" > $GITHUB_OUTPUT
