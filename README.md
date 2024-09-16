@@ -53,11 +53,22 @@ permissions:
   contents: write
 
 jobs:
-  tag-release:
+  tag:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oobook/automated-tag@v0
+        id: tag-generation
         with:
           gh-token: ${{ github.token }}
+      - name: Get Tag Outputs 
+        if: ${{ success() && steps.tag-generation.outputs.tag != '' }}
+        run: |
+          {
+            echo 'tag<<EOF'
+            yarn test 2>&1
+            echo EOF
+          } >> "$GITHUB_ENV"
+        with: 
+          tag: {{ steps.tag-generation.outputs.tag }}
 ```
