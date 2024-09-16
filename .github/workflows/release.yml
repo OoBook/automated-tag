@@ -1,12 +1,14 @@
-name: Create Release
+name: "Release"
 
 # Run on every commit tag which begins with 'v' except BREAKING Change
 on:
-  repository_dispatch:
-    types: [new-tag-created]
-
-permissions:
-  contents: write
+  push:
+    tags:
+      - '-v*'
+  create:
+    # paths-ignore:
+    #   - '**.md'
+    #   - '**.yml'
 
 # Automatically create a Github Release, with release details specified (the relevant commits)
 jobs:
@@ -14,9 +16,6 @@ jobs:
     name: "Release the new version from the related tag"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # This ensures all history is fetched
       - name: Run Workflow (if not BREAKING CHANGE)
         id: release
         uses: "marvinpinto/action-automatic-releases@latest"
