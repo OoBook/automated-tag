@@ -92,6 +92,9 @@ async function run() {
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
 
+    core.debug("trial");
+    core.debug(`${token.substring(0, 3)})`);
+
     const octokit = github.getOctokit(token);
 
     let commits = [];
@@ -169,11 +172,10 @@ async function run() {
       tag = `v${versions.join(".")}`;
     }
 
-    core.info(`Older tags:`, tags);
+    core.info(`Older tags:`);
     console.log(tags);
 
-    console.log(`Automated Tag: `, tag);
-    core.info(`Automated Tag: `, tag);
+    core.info(`Automated Tag: ${tag}`);
 
     if (isTest) {
       core.setOutput("tag", tag);

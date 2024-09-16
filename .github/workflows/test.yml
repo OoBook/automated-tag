@@ -1,10 +1,10 @@
-name: TEST
+name: Test
 
 on:
   pull_request:
     branches:
-      - main
-
+      - test
+      
 permissions:
   contents: write
 
