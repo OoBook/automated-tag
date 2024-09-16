@@ -169,6 +169,8 @@ async function run() {
       tag = `v${versions.join(".")}`;
     }
 
+    core.info(`Older tags: `, tags);
+
     const tagResponse = await octokit.rest.git.createTag({
       owner,
       repo,
