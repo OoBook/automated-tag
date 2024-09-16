@@ -92,9 +92,6 @@ async function run() {
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
 
-    core.info("trial");
-    core.info(`${token.substring(0, 3)})`);
-
     const octokit = github.getOctokit(token);
 
     let commits = [];
@@ -183,6 +180,7 @@ async function run() {
       return;
     }
 
+    core.info(`Commit Sha: ${commitSha}`);
     const tagResponse = await octokit.rest.git.createTag({
       owner,
       repo,
