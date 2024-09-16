@@ -93,7 +93,6 @@ async function run() {
     const commitSha = core.getInput("commit_sha") || context.sha;
 
     const octokit = github.getOctokit(token);
-
     let commits = [];
 
     if (context.eventName !== "push" && !isTest) {
