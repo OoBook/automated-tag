@@ -4,11 +4,7 @@ name: "Release"
 on:
   push:
     tags:
-      - '-v*'
-  create:
-    # paths-ignore:
-    #   - '**.md'
-    #   - '**.yml'
+      - 'v*'
 
 # Automatically create a Github Release, with release details specified (the relevant commits)
 jobs:
