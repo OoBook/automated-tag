@@ -3,6 +3,8 @@ name: "Release"
 # Run on every commit tag which begins with 'v' except BREAKING Change
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
 
@@ -15,13 +17,20 @@ jobs:
     name: "Release the new version from the related tag"
     runs-on: "ubuntu-latest"
     steps:
-      - name: Run Workflow (if not BREAKING CHANGE)
-        id: release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: true
-      - name: Handle Releasing Output
-        run: |
-          echo "Released Tag {{ steps.releas.outputs.automatic_releases_tag }}"
-          echo "Upload Url {{ steps.releas.outputs.upload_url }}"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: 'Release Test after tag generated'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      # - name: Run Workflow (if not BREAKING CHANGE)
+      #   id: release
+      #   uses: "marvinpinto/action-automatic-releases@latest"
+      #   with:
+      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
+      #     prerelease: true
+      # - name: Handle Releasing Output
+      #   run: |
+      #     echo "Released Tag {{ steps.releas.outputs.automatic_releases_tag }}"
+      #     echo "Upload Url {{ steps.releas.outputs.upload_url }}"
