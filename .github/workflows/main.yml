@@ -16,11 +16,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: ./
+      - name: Create Tag
+        uses: ./
         id: tag-generation
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'Run local automated-release'
+      - name: Create Release
         uses: oobook/automated-release@v1.0.1
         id: release-generation
         with:
