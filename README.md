@@ -32,13 +32,18 @@ A GitHub action that creates a new tag according to the [Conventional Commits](h
 
 This action will automatically create a new tag and release for your repository when a pull request is merged to the default branch. It will also create a changelog entry for the new tag and release.
 
-This action is currently experimental.
-
 ## Inputs
 
-### `gh-token`
+| Name | Description | Obligatory | Default
+| --- | --- | --- | --- |
+| `gh-token` | A GitHub token with `repo` scope. This is used to create release | required | |
 
-A GitHub token with `repo` scope. This is used to create the tag and release.
+## Outputs
+
+| Name | Description |
+| --- | --- | 
+| `tag` | The new auto-generated tag |
+| `ref` | The new tag ref |
 
 ### Usage
 
@@ -57,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oobook/automated-tag@v0
+      - uses: oobook/automated-tag@v1
         id: tag-generation
         with:
           gh-token: ${{ github.token }}
