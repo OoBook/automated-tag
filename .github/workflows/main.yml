@@ -6,14 +6,11 @@ on:
     #   - '!sub-project/**'
     #   - 'sub-project/docs/**.md'
     branches:
-      - main
+      - _main
     # Sequence of patterns matched against refs/tags
     tags-ignore:
       - v*
       # - v1.*
-    # branches-ignore:
-    #   - 'mona/octocat'
-    #   - 'releases/**-alpha'
   pull_request:
     branches:
       - dev
