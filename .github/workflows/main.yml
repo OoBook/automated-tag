@@ -1,19 +1,11 @@
 name: Main
 on:
   push:
-    # paths:
-    #   - '**'
-    #   - '!sub-project/**'
-    #   - 'sub-project/docs/**.md'
     branches:
       - main
     # Sequence of patterns matched against refs/tags
     tags-ignore:
       - v*
-      # - v1.*
-  pull_request:
-    branches:
-      - dev
 
 permissions:
   contents: write
@@ -25,26 +17,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - uses: ./
-      #   id: tag-generation
-      #   with:
-      #     gh_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ./
+        id: tag-generation
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Run local automated-release'
-        uses: ./automated-release
+        uses: oobook/automated-release@v1
         id: release-generation
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          # tag: "${{ steps.tag-generation.outputs.tag }}"
-          tag: v0.11.2
+          tag: "${{ steps.tag-generation.outputs.tag }}"
           prerelease: true
-      # - name: Run Workflow (if not BREAKING CHANGE)
-      #   id: release
-      #   uses: "marvinpinto/action-automatic-releases@latest"
-      #   with:
-      #     repo_token: "${{ secrets.GITHUB_TOKEN }}"
-      #     prerelease: true
-      #     automatic_release_tag: "${{ steps.tag-generation.outputs.tag }}"
-      # - name: Handle Releasing Output
-      #   run: |
-      #     echo "Released Tag {{ steps.release.outputs.automatic_releases_tag }}"
-      #     echo "Upload Url {{ steps.release.outputs.upload_url }}"
