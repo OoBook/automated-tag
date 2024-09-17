@@ -25,10 +25,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: ./
-        id: tag-generation
-        with:
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: ./
+      #   id: tag-generation
+      #   with:
+      #     gh_token: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Run local automated-release'
         uses: ./automated-release
         id: release-generation
