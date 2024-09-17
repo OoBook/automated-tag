@@ -4,9 +4,9 @@ name: "Release"
 on:
   push:
     branches:
-      - main
+      - _main
     tags:
-      - 'v*'
+      - '_v*'
 
 permissions:
   contents: write
