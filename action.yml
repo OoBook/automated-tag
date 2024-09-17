@@ -17,15 +17,6 @@ outputs:
     description: 'The new auto-generated tag'
   ref:
     description: 'The new tag ref'
-# runs:
-#   using: composite
-#   steps:
-#     - uses: actions/checkout@v3
-#     - name: Tag & Release
-#       shell: bash
-#       run: sh ${{ github.action_path }}/src/create-tag.sh
-#       env:
-#         GITHUB_TOKEN: ${{ inputs.gh-token }}
 runs:
   using: node20
   main: dist/index.js
