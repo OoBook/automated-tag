@@ -1,4 +1,4 @@
-# Autotag action
+# Automated Tag Action
 
 [![Main](https://img.shields.io/github/actions/workflow/status/oobook/automated-tag/main.yml?label=build&logo=github-actions)](https://github.com/oobook/automated-tag/actions?workflow=main)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/oobook/automated-tag?label=release&logo=GitHub)](https://github.com/oobook/automated-tag/releases)
@@ -43,7 +43,7 @@ A GitHub token with `repo` scope. This is used to create the tag and release.
 ### Usage
 
 ```yaml
-name: Autotag and Release
+name: Generate Tag
 on:
   push:
     branches:
@@ -66,10 +66,10 @@ jobs:
         if: ${{ success() && steps.tag-generation.outputs.tag != '' }}
         run: |
           {
-            echo 'tag<<EOF'
+            echo 'release_tag<<EOF'
             yarn test 2>&1
             echo EOF
           } >> "$GITHUB_ENV"
         with: 
-          tag: {{ steps.tag-generation.outputs.tag }}
+          release_tag: {{ steps.tag-generation.outputs.tag }}
 ```
