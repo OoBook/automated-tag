@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.0.2 - 2024-09-19
+
+### :green_heart: Workflow
+
+- add update-main-version action by @OoBook in https://github.com/OoBook/automated-tag/commit/96bdec44fad7d80a6bdb01a05c935eb2ba2f895d
+- change automated-release version as v1 by @OoBook in https://github.com/OoBook/automated-tag/commit/789a73965948fb499d25d207122b17cb464cee18
+
+### :beers: Other Stuff
+
+- Update CHANGELOG
+
 ## v1.0.1 - 2024-09-19
 
 ### :memo: Documentation
