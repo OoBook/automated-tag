@@ -22,7 +22,7 @@ jobs:
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
-        uses: oobook/automated-release@v1.0.1
+        uses: oobook/automated-release@v1
         id: release-generation
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
