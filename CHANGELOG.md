@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.1.0 - 2024-09-26
+
+### :rocket: Features
+
+- add predefined tag input by @OoBook in https://github.com/OoBook/automated-tag/commit/6ff8a962f7010945e458ba2e8af2dfb8c937594b
+- add predefined tag and release/* branch pushes by @OoBook in https://github.com/OoBook/automated-tag/commit/6f3a1fc579a2acd24a485748be14589852499a00
+
+### :memo: Documentation
+
+- :memo: add tag input to README by @OoBook in https://github.com/OoBook/automated-tag/commit/a52a2655bb0c59ccb6f925527784e14805d1ea19
+
+### :package: Build
+
+- build for v1.1.0 by @OoBook in https://github.com/OoBook/automated-tag/commit/f678da3c98480a79166134ce90d9e67dabdcf1a0
+
+### :beers: Other Stuff
+
+- Update CHANGELOG
+
 ## v1.0.2 - 2024-09-19
 
 ### :green_heart: Workflow
