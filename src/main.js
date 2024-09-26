@@ -90,6 +90,7 @@ async function run() {
     const pr_number = core.getInput("pr_number");
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
+    let tag = core.getInput("tag") || ''
 
     const octokit = github.getOctokit(token);
 
@@ -114,6 +115,11 @@ async function run() {
     } else {
       core.setFailed(`Unsupported event: ${context.eventName}`);
       return;
+    }
+
+    const releaseMatches = github.context.ref.match(/refs\/heads\/release\/(v[0-9]+\.[0-9]+\.[0-9]+)/)
+    if(releaseMatches){
+      tag = releaseMatches[1]
     }
 
     const major_pattern = /BREAKING CHANGE:/;
@@ -142,41 +148,54 @@ async function run() {
       // );
     }
 
-    core.info(`Owner: ${owner}`);
-    core.info(`Repo: ${repo}`);
+    // core.info(`Owner: ${owner}`);
+    // core.info(`Repo: ${repo}`);
+
 
     // Fetch all tags
     const { data: tags } = await octokit.rest.repos.listTags({
       owner,
       repo,
-      per_page: 1, // Adjust as needed
+      per_page: 100, // Adjust as needed
     });
 
-    const last_tag = tags[0].name;
 
-    const tag_pattern = /^(v)([0-9]+\.[0-9]+\.[0-9]+)(-[\w]+)?$/;
-    let matches = null;
+    if(tag === ''){      
+      
+      tag = "v1.0.0";
 
-    let tag = "";
-    if ((matches = last_tag.match(tag_pattern))) {
-      const versions = matches[2].split(".").map((v) => parseInt(v));
-
-      if (isMajor) {
-        versions[0] += 1;
-        versions[1] = 0;
-        versions[2] = 0;
-      } else if (isMinor) {
-        versions[1] += 1;
-        versions[2] = 0;
-      } else versions[2] += 1;
-
-      tag = `v${versions.join(".")}`;
+      if(tags.length > 0){
+        const last_tag = tags[0].name;
+    
+        const tag_pattern = /^(v)([0-9]+\.[0-9]+\.[0-9]+)(-[\w]+)?$/;
+        let matches = null;
+    
+        if ((matches = last_tag.match(tag_pattern))) {
+          const versions = matches[2].split(".").map((v) => parseInt(v));
+    
+          if (isMajor) {
+            versions[0] += 1;
+            versions[1] = 0;
+            versions[2] = 0;
+          } else if (isMinor) {
+            versions[1] += 1;
+            versions[2] = 0;
+          } else versions[2] += 1;
+    
+          tag = `v${versions.join(".")}`;
+        }
+    
+        // core.info(`Older tags:`);
+        // console.log(tags);
+      }
+  
+      core.info(`Automated Tag: ${tag}`);
+    }else {
+      if( tags.map((t) => t.name).includes(tag) ){
+        core.error(`${tag} already exists!`)
+        return;
+      }
     }
-
-    core.info(`Older tags:`);
-    console.log(tags);
-
-    core.info(`Automated Tag: ${tag}`);
 
     if (isTest) {
       core.setOutput("tag", tag);
