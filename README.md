@@ -37,6 +37,7 @@ This action will automatically create a new tag and release for your repository 
 | Name | Description | Obligatory | Default
 | --- | --- | --- | --- |
 | `gh-token` | A GitHub token with `repo` scope. This is used to create release | required | |
+| `tag` | Predefined tag | optional | |
 
 ## Outputs
 
