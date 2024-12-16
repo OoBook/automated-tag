@@ -122,10 +122,13 @@ async function run() {
 
     let commits = [];
 
-    if (context.eventName !== "push" && !isTest) {
+    if (context.eventName !== "push" && context.eventName !== "workflow_dispatch" && !isTest) {
       core.setFailed(`Unsupported event: ${context.eventName}`);
     }
 
+    if(context.eventName === "workflow_dispatch"){
+      console.log('context', context)
+    }
 
     if (context.eventName === "push") {
       // For push events, commits are directly available in the payload
