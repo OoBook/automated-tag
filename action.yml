@@ -15,6 +15,13 @@ inputs:
   gh_token:
     description: GitHub token with repo access
     required: true
+  prerelease:
+    description: prerelease mode of the action
+    required: false
+  initial_tag:
+    description: initial tag of the action
+    required: false
+    default: 'v0.0.0'
 outputs:
   tag:
     description: 'The new auto-generated tag'

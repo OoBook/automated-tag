@@ -1,5 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const semver = require('semver')
 
 async function test() {
   const owner = core.getInput("owner", { required: true });
@@ -81,8 +82,8 @@ async function test() {
 async function run() {
   try {
     // Get the event payload
-    const { context } = github;
-    const { payload } = context;
+    let { context } = github;
+    let { payload } = context;
 
     const owner = context.repo.owner;
     const repo = context.repo.repo;
@@ -91,14 +92,40 @@ async function run() {
     const token = core.getInput("gh_token", { required: true });
     const commitSha = core.getInput("commit_sha") || context.sha;
     let tag = core.getInput("tag") || ''
+    // let prerelease = core.getInput("prerelease") || false
+    let initialVersion = semver.valid(core.getInput("initial_tag")) || '0.0.0'
+    let prerelease = typeof core.getInput("prerelease") === 'string' 
+      ? (core.getInput("prerelease") === 'true' 
+        ? 'alpha' 
+        : core.getInput('prerelease') == 'false' ? false : core.getInput("prerelease"))
+      : (core.getInput("prerelease") ? 'alpha' : false)
 
     const octokit = github.getOctokit(token);
+
+    if(isTest){
+      context = {
+        ...context,
+        ...pushContext({
+          // ref: 'refs/heads/v1.2.0',
+          // ref: 'refs/heads/release/v1.2.0',
+          // ref: 'refs/heads/release/v1.2.0',
+          sha: commitSha
+        })
+      }
+
+      payload = {
+        ...payload,
+        ...context.payload
+      }
+
+    }
 
     let commits = [];
 
     if (context.eventName !== "push" && !isTest) {
       core.setFailed(`Unsupported event: ${context.eventName}`);
     }
+
 
     if (context.eventName === "push") {
       // For push events, commits are directly available in the payload
@@ -117,41 +144,11 @@ async function run() {
       return;
     }
 
-    const releaseMatches = github.context.ref.match(/refs\/heads\/release\/(v[0-9]+\.[0-9]+\.[0-9]+)/)
-    if(releaseMatches){
-      tag = releaseMatches[1]
-    }
-
-    const major_pattern = /BREAKING CHANGE:/;
-    const minor_pattern = /^feat(\(\w+\))?:/;
-
-    // const string = "feat: add variations";
-
-    let isMajor = false;
-    let isMinor = false;
-
-    for (const commit of commits) {
-      const message =
-        context.eventName === "push" ? commit.message : commit.commit.message;
-      if (message.match(major_pattern)) {
-        isMajor = true;
-        return;
-      } else if (message.match(minor_pattern)) {
-        isMinor = true;
-      }
-      // console.log(
-      //   commit.sha,
-      //   commit.commit.message,
-      //   commit.author.type, // User
-      //   commit.author.login, // OoBook
-      //   commit.author.html_url, //
-      // );
-    }
-
-    // core.info(`Owner: ${owner}`);
-    // core.info(`Repo: ${repo}`);
-
-
+    // Check if we're on a version branch 
+    const versionBranchMatches = context.ref.match(/refs\/heads\/(v.*)/)?.filter(tag => semver.valid(tag))
+    // Check if we're on a release branch
+    const releaseMatches = context.ref.match(/refs\/heads\/release\/(v.*)/)?.filter(tag => semver.valid(tag))
+    
     // Fetch all tags
     const { data: tags } = await octokit.rest.repos.listTags({
       owner,
@@ -159,51 +156,133 @@ async function run() {
       per_page: 100, // Adjust as needed
     });
 
+    const validTags = tags
+      .map(t => t.name)
+      .filter(name => semver.valid(name));
 
-    if(tag === ''){      
-      
-      tag = "v1.0.0";
+    const lastPrereleaseVersion = semver.valid(validTags.length > 0 ? validTags.sort(semver.rcompare)[0] : null);
+    const lastVersion = semver.valid(semver.maxSatisfying(validTags, '*') || null)
+    
+    // If we're on a release branch, use the tag from the release branch
+    if(releaseMatches && releaseMatches.length > 0){
+      tag = releaseMatches[0]
 
-      if(tags.length > 0){
-        const last_tag = tags[0].name;
-    
-        const tag_pattern = /^(v)([0-9]+\.[0-9]+\.[0-9]+)(-[\w]+)?$/;
-        let matches = null;
-    
-        if ((matches = last_tag.match(tag_pattern))) {
-          const versions = matches[2].split(".").map((v) => parseInt(v));
-    
-          if (isMajor) {
-            versions[0] += 1;
-            versions[1] = 0;
-            versions[2] = 0;
-          } else if (isMinor) {
-            versions[1] += 1;
-            versions[2] = 0;
-          } else versions[2] += 1;
-    
-          tag = `v${versions.join(".")}`;
+    } else if(tag === ''){
+
+      const major_pattern = /BREAKING CHANGE:/;
+      const minor_pattern = /^feat(\(\w+\))?:/;
+  
+      let isMajor = false;
+      let isMinor = false;
+  
+      for (const commit of commits) {
+        const message =
+          context.eventName === "push" ? commit.message : commit.commit.message;
+        if (message.match(major_pattern)) {
+          isMajor = true;
+          return;
+        } else if (message.match(minor_pattern)) {
+          isMinor = true;
         }
-    
-        // core.info(`Older tags:`);
-        // console.log(tags);
       }
   
-      core.info(`Automated Tag: ${tag}`);
-    }else {
-      if( tags.map((t) => t.name).includes(tag) ){
-        core.error(`${tag} already exists!`)
-        return;
+      // core.info(`Owner: ${owner}`);
+      // core.info(`Repo: ${repo}`);
+  
+      let releaseType = isMajor ? 'major' : isMinor ? 'minor' : 'patch';
+      let prereleaseType = null
+
+      if(prerelease){
+        releaseType = 'prerelease',
+        prereleaseType = prerelease
       }
+
+      let currentVersion = versionBranchMatches 
+        && versionBranchMatches.length > 0 
+        && semver.valid(versionBranchMatches[0]) // 1.0.0 or null
+      
+      // let currentVersion = null
+      let newVersion = null
+
+      if(!currentVersion && github.context.ref === 'refs/heads/main'){
+  
+        // Try to find existing tags pointing to the current commit
+        const { data: matchingRefs } = await octokit.rest.git.listMatchingRefs({
+          owner,
+          repo,
+          ref: 'tags/'
+        });
+  
+        const currentTags = matchingRefs
+          .filter(ref => ref.object.sha === commitSha && semver.valid(ref.ref.replace('refs/tags/', '')))
+          .map(ref => ref.ref.replace('refs/tags/', ''));
+  
+        if (currentTags.length > 0) {
+          // Use the highest semver if multiple tags exist
+          currentVersion = semver.valid(currentTags.sort(semver.rcompare)[0]);
+        } else {
+          // Fallback to most recent tag if no tag exists for current commit
+          currentVersion = prerelease ? lastPrereleaseVersion : lastVersion;
+        }        
+      }
+
+      if(currentVersion){
+        const prereleaseParts = semver.prerelease(currentVersion)
+  
+        if(prereleaseParts){
+          prereleaseType = prereleaseParts[0]
+          if(releaseType === 'major'){
+            if(prereleaseType === 'alpha'){
+              prereleaseType = 'beta'
+              releaseType = 'prerelease'
+            }else if(prereleaseType === 'beta'){
+              prereleaseType = 'rc'
+              releaseType = 'prerelease'
+            }else if(prereleaseType === 'rc'){
+              prereleaseType = null
+              releaseType = 'patch'
+            }
+          }else{
+            releaseType = 'prerelease'
+          }
+        }
+        // Determine version bump based on commit messages
+        newVersion = semver.inc(currentVersion, releaseType, prereleaseType);
+      } else {
+
+        if(prerelease){
+          newVersion = semver.inc(initialVersion, releaseType, prereleaseType)
+        } else {
+          newVersion = initialVersion
+        }
+      }
+
+      newVersion = semver.valid(newVersion)
+      tag = `v${newVersion}`
+
+    } else {
+      tag = `v${semver.valid(tag)}`
+    }
+
+    core.info(`Automated Tag: ${tag}`);
+    
+    if( tags.map((t) => t.name).includes(tag) ){
+      core.error(`${tag} already exists!`)
+      return;
     }
 
     if (isTest) {
+      core.setOutput('prerelease', prerelease)
+      core.setOutput("last_version", lastVersion);
+      core.setOutput("last_prerelease_version", lastPrereleaseVersion);
+
       core.setOutput("tag", tag);
 
       return;
     }
 
     core.info(`Commit Sha: ${commitSha}`);
+    
     const tagResponse = await octokit.rest.git.createTag({
       owner,
       repo,
@@ -235,6 +314,31 @@ async function run() {
     core.setOutput("ref", refResponse.data.ref);
   } catch (error) {
     core.setFailed(error.message);
+  }
+}
+
+const pushContext = (context = {}) => {
+  return {
+    eventName: context.eventName || 'push',
+    ref: context.ref || 'refs/heads/main',
+    sha: context.sha || 'ad0f54ef7ac40e4ffa521d7808ad129028754155',
+    repo: {
+      owner: context?.repo?.owner || 'oobook',
+      repo: context?.repo?.repo || 'automated'
+    },
+    actor: context?.actor || 'testuser',
+    payload: {
+      commits: [
+        {
+          message: 'feat: add new feature',
+          id: 'ad0f54ef7ac40e4ffa521d7808ad129028754155',
+          author: {
+            name: 'Test User',
+            email: 'test@example.com'
+          }
+        }
+      ]
+    }
   }
 }
 
