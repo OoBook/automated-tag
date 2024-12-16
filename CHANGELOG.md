@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.2.2 - 2024-12-16
+
+### :wrench: Bug Fixes
+
+- refine event handling in main.js to exclude unsupported events by @OoBook in https://github.com/OoBook/automated-tag/commit/63439ba438222e4888144d3650857c6d2ef5480a
+
+### :beers: Other Stuff
+
+- update binary files in dist directory to reflect latest builds by @OoBook in https://github.com/OoBook/automated-tag/commit/c9dde7ec54f90c5b6a1c04c583d09a5ee3c04067
+
 ## v1.2.1 - 2024-12-16
 
 ### :wrench: Bug Fixes
