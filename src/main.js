@@ -207,7 +207,7 @@ async function run() {
       // let currentVersion = null
       let newVersion = null
 
-      if(!currentVersion && github.context.ref === 'refs/heads/main'){
+      if(!currentVersion && github.context.ref === 'refs/heads/main' && tags.length > 0){
   
         // Try to find existing tags pointing to the current commit
         const { data: matchingRefs } = await octokit.rest.git.listMatchingRefs({
