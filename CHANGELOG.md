@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.2.1 - 2024-12-16
+
+### :wrench: Bug Fixes
+
+- enhance event handling in main.js for workflow_dispatch by @OoBook in https://github.com/OoBook/automated-tag/commit/56039dcdb07ac7745339626a785432058728234d
+
+### :beers: Other Stuff
+
+- update binary files in dist directory to reflect latest builds by @OoBook in https://github.com/OoBook/automated-tag/commit/92765170bfc4540350b805813ab2aa5421d30fd2
+
 ## v1.2.0 - 2024-12-16
 
 ### :rocket: Features
