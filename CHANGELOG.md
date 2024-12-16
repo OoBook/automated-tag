@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.2.3 - 2024-12-16
+
+### :wrench: Bug Fixes
+
+- refine version checking logic in main.js to include tag presence by @OoBook in https://github.com/OoBook/automated-tag/commit/63710df4e9ded45d7e5634538929cdc20b1d0541
+
+### :beers: Other Stuff
+
+- update binary files in dist directory to reflect latest builds by @OoBook in https://github.com/OoBook/automated-tag/commit/9e780d3f963dd345ef93fcba8719b119c4ad8efa
+
 ## v1.2.2 - 2024-12-16
 
 ### :wrench: Bug Fixes
