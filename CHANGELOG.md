@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.0 - 2024-12-16
+
+### :rocket: Features
+
+- add force_release input to action.yml and enhance versioning logic in main.js by @OoBook in https://github.com/OoBook/automated-tag/commit/b9f1937a986261151c77ee5e7b33db9b19021f9e
+
+### :beers: Other Stuff
+
+- update binary files in dist directory to reflect latest builds by @OoBook in https://github.com/OoBook/automated-tag/commit/6c70b05579eaf9bf5792ecd870fba5c2c1e5e4b9
+
 ## v1.2.3 - 2024-12-16
 
 ### :wrench: Bug Fixes
