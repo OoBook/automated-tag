@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0 - 2024-12-16
+
+### :rocket: Features
+
+- add prerelease and initial_tag inputs to action.yml; enhance versioning logic in main.js by @OoBook in https://github.com/OoBook/automated-tag/commit/4d829624710534b94bb2934582f7ad7c8c35dd05
+
+### :beers: Other Stuff
+
+- update semver to version 7.6.3 in package.json and package-lock.json by @OoBook in https://github.com/OoBook/automated-tag/commit/8948b0db3ed9f3a961793c2c1fb5d53de0e2161b
+- update binary files in dist directory by @OoBook in https://github.com/OoBook/automated-tag/commit/3961c867153469be3dcc2b57a61e37a0e8165a7b
+
 ## v1.1.0 - 2024-09-26
 
 ### :rocket: Features
