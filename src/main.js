@@ -99,6 +99,7 @@ async function run() {
         ? 'alpha' 
         : core.getInput('prerelease') == 'false' ? false : core.getInput("prerelease"))
       : (core.getInput("prerelease") ? 'alpha' : false)
+    let forceRelease = core.getInput("force_release") === 'true'
 
     const octokit = github.getOctokit(token);
 
@@ -124,10 +125,6 @@ async function run() {
 
     if (context.eventName !== "push" && context.eventName !== "workflow_dispatch" && !isTest) {
       core.setFailed(`Unsupported event: ${context.eventName}`);
-    }
-
-    if(context.eventName === "workflow_dispatch"){
-      console.log('context', context)
     }
 
     if (context.eventName === "push") {
@@ -193,10 +190,11 @@ async function run() {
       // core.info(`Repo: ${repo}`);
   
       let releaseType = isMajor ? 'major' : isMinor ? 'minor' : 'patch';
+      let commitReleaseType = releaseType
       let prereleaseType = null
 
-      if(prerelease){
-        releaseType = 'prerelease',
+      if(prerelease && !forceRelease){
+        releaseType = 'prerelease'
         prereleaseType = prerelease
       }
 
@@ -204,6 +202,9 @@ async function run() {
         && versionBranchMatches.length > 0 
         && semver.valid(versionBranchMatches[0]) // 1.0.0 or null
       
+      // currentVersion = '1.3.0-beta.17'
+      // releaseType = 'major'
+
       // let currentVersion = null
       let newVersion = null
 
@@ -231,11 +232,11 @@ async function run() {
 
       if(currentVersion){
         const prereleaseParts = semver.prerelease(currentVersion)
-  
+
         if(prereleaseParts){
           prereleaseType = prereleaseParts[0]
           if(releaseType === 'major'){
-            if(prereleaseType === 'alpha'){
+            if(prereleaseType === 'alpha' ){
               prereleaseType = 'beta'
               releaseType = 'prerelease'
             }else if(prereleaseType === 'beta'){
@@ -248,13 +249,53 @@ async function run() {
           }else{
             releaseType = 'prerelease'
           }
-        }
-        // Determine version bump based on commit messages
-        newVersion = semver.inc(currentVersion, releaseType, prereleaseType);
-      } else {
 
+          if(prereleaseParts[0] === 'beta' && ['alpha'].includes(prereleaseType) && releaseType){
+            prereleaseType = 'beta'
+          } else if(prereleaseParts[0] === 'rc' && ['alpha', 'beta'].includes(prereleaseType)){
+            prereleaseType = 'rc'
+          }
+        }
+
+        if(prerelease && prereleaseParts){
+          if(true !== prerelease){
+            if(prereleaseType === 'rc' && !['alpha', 'beta'].includes(prerelease)){
+              prereleaseType = prerelease
+            }else if(prereleaseType === 'beta' && !['alpha'].includes(prerelease)){
+              prereleaseType = prerelease
+            }
+            
+            if(prereleaseParts[0] === 'beta' && ['alpha'].includes(prereleaseType)){
+              prereleaseType = 'beta'
+            } else if(prereleaseParts[0] === 'rc' && ['alpha', 'beta'].includes(prereleaseType)){
+              prereleaseType = 'rc'
+            }
+            
+          }
+        }
+
+        commitReleaseType = 'minor'
+        // If we're on a prerelease branch, we need to force the release type to be a prerelease
+        if(releaseType === 'prerelease' && !prereleaseParts){
+          if(commitReleaseType === 'major'){
+            releaseType = 'premajor'
+          } else if(commitReleaseType === 'minor'){
+            releaseType = 'preminor'
+          } else if(commitReleaseType === 'patch'){
+            releaseType = 'prerelease'
+          }
+        }
+
+        if(forceRelease && ['premajor', 'preminor', 'prepatch', 'prerelease'].includes(releaseType) && prereleaseParts){
+          newVersion = semver.valid(semver.coerce(currentVersion))
+        }else{
+          // Determine version bump based on commit messages
+          newVersion = semver.inc(currentVersion, releaseType, prereleaseType);
+        }
+      } else {
         if(prerelease){
-          newVersion = semver.inc(initialVersion, releaseType, prereleaseType)
+          // newVersion = semver.inc(initialVersion, releaseType, prereleaseType)
+          newVersion = `${initialVersion}-${prereleaseType}`
         } else {
           newVersion = initialVersion
         }
