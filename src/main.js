@@ -142,7 +142,7 @@ async function run() {
         },
       );
       commits = pullRequestCommits;
-    } else {
+    } else if(context.eventName !== "workflow_dispatch") {
       core.setFailed(`Unsupported event: ${context.eventName}`);
       return;
     }
