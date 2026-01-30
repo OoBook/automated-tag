@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.1 - 2026-01-30
+
+### :recycle: Refactors
+
+- rename action from "Automated Tag" to "Autonomous Tag" across all relevant files by @oguzhanbukcuoglu in https://github.com/OoBook/autonomous-tag/commit/14a7bb068da492a825c677b0f623976971404cd5
+
 ## v1.3.0 - 2024-12-16
 
 ### :rocket: Features
