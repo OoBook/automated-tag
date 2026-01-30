@@ -1,12 +1,12 @@
 {
-  "name": "automated-tag",
+  "name": "autonomous-tag",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/oobook/automated-tag#readme",
+  "homepage": "https://github.com/oobook/autonomous-tag#readme",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oobook/automated-tag.git"
+    "url": "git+https://github.com/oobook/autonomous-tag.git"
   },
   "scripts": {
     "local": "npx @github/local-action run ./ src/index.js .env",
@@ -27,6 +27,7 @@
     "Actions",
     "Tag",
     "Automated",
+    "Autonomous",
     "autotag"
   ],
   "author": "Oğuzhan Bükçüoğlu",
